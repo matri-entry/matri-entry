@@ -33,7 +33,7 @@ const dataEntrySchema = new mongoose.Schema(
     profileId: {
       type: String,
       trim: true,
-      default: null,
+      // Removed default: null to prevent indexing conflicts
     },
 
     /** Date profile was posted (free-text as displayed in source document) */
@@ -165,12 +165,13 @@ const dataEntrySchema = new mongoose.Schema(
 dataEntrySchema.index({ userId: 1, slotNumber: 1 }, { unique: true });
 
 /**
- * Sparse compound index: profileId must be unique per user, but NULL/missing
- * values are excluded so that multiple blank slots can co-exist.
+ * Partial compound index: profileId must be unique per user, but ONLY
+ * if profileId is explicitly provided as a string. 
+ * This prevents Duplicate Key errors on blank slots.
  */
 dataEntrySchema.index(
   { userId: 1, profileId: 1 },
-  { unique: true, sparse: true }
+  { unique: true, partialFilterExpression: { profileId: { $type: 'string' } } }
 );
 
 module.exports = mongoose.model('DataEntry', dataEntrySchema);

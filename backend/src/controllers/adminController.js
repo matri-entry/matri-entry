@@ -30,16 +30,20 @@ const createBlankSlots = async (userId, nextSlot, count) => {
 };
 
 /**
- * Compute completedCount and pendingCount for a given userId.
+ * Compute completedCount and pendingCount mathematically based on assignedCount.
+ * Pending = Assigned - Completed (never queried from blank/draft status)
  *
  * @param {mongoose.Types.ObjectId|string} userId
+ * @param {number} assignedCount - The user's total assigned slot count
  * @returns {Promise<{ completedCount: number, pendingCount: number }>}
  */
-const getUserStats = async (userId) => {
-  const [completedCount, pendingCount] = await Promise.all([
-    DataEntry.countDocuments({ userId, status: 'submitted' }),
-    DataEntry.countDocuments({ userId, status: { $in: ['blank', 'draft'] } }),
-  ]);
+const getUserStats = async (userId, assignedCount) => {
+  const completedCount = await DataEntry.countDocuments({ userId, status: 'submitted' });
+  
+  // Enforce strict mathematics. Use Math.max to prevent negative pending 
+  // counts in edge cases where a manual DB deletion occurs.
+  const pendingCount = Math.max(0, (assignedCount || 0) - completedCount);
+  
   return { completedCount, pendingCount };
 };
 
@@ -76,7 +80,7 @@ const listUsers = async (req, res, next) => {
 
     const usersWithStats = await Promise.all(
       users.map(async (u) => {
-        const stats = await getUserStats(u._id);
+        const stats = await getUserStats(u._id, u.assignedCount);
         return { ...u, ...stats };
       })
     );
@@ -162,7 +166,7 @@ const getUser = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'User not found.' });
     }
 
-    const stats = await getUserStats(user._id);
+    const stats = await getUserStats(user._id, user.assignedCount);
     return res.status(200).json({ success: true, data: { ...user, ...stats } });
   } catch (err) {
     return next(err);
@@ -663,7 +667,7 @@ const getMonitoring = async (req, res, next) => {
 
     const data = await Promise.all(
       users.map(async (u) => {
-        const stats = await getUserStats(u._id);
+        const stats = await getUserStats(u._id, u.assignedCount);
         return {
           userId: u._id,
           fullName: u.fullName,
