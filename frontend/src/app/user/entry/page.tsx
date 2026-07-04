@@ -57,7 +57,7 @@ const entrySchema = z.object({
   gender:         z.string().min(1, 'Gender is required'),
   age: z.preprocess(
     (v) => (v === '' || v == null ? undefined : Number(v)),
-    z.number({ required_error: 'Age is required', invalid_type_error: 'Age must be a number' })
+    z.number({ message: 'Age is required and must be a valid number' })
       .int().min(18, 'Age must be at least 18').max(100, 'Age must be at most 100')
   ),
   education:      z.string().min(1, 'Education is required'),
