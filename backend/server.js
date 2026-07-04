@@ -2,7 +2,11 @@
 
 require('dotenv').config();
 
-console.log("Mongo URI:", process.env.MONGODB_URI);
+console.log(
+  process.env.MONGODB_URI
+    ? "✅ MongoDB URI Loaded"
+    : "❌ MongoDB URI Missing"
+);
 
 const express = require('express');
 const cors = require('cors');
@@ -19,7 +23,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ─── Connect to MongoDB ───────────────────────────────────────────────────────
-connectDB();
+(async () => {
+  await connectDB();
+})();
 
 // ─── Core Middleware ──────────────────────────────────────────────────────────
 
@@ -68,8 +74,12 @@ app.use((_req, res) => {
 app.use(errorHandler);
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`[server] Running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(
+      `[server] Running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`
+    );
+  });
+}
 
-module.exports = app; // exported for testing
+module.exports = app;
