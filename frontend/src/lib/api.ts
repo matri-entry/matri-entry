@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { setCookie, eraseCookie } from '@/lib/utils';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://matri-entry.vercel.app/api';
 
 const api = axios.create({
   baseURL: BASE_URL,
