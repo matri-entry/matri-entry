@@ -23,9 +23,19 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // ─── Connect to MongoDB ───────────────────────────────────────────────────────
-(async () => {
-  await connectDB();
-})();
+let dbConnected = false;
+
+const initializeDB = async () => {
+    if (!dbConnected) {
+        await connectDB();
+        dbConnected = true;
+    }
+};
+
+app.use(async (req, res, next) => {
+    await initializeDB();
+    next();
+});
 
 // ─── Core Middleware ──────────────────────────────────────────────────────────
 
