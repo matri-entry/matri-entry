@@ -442,7 +442,11 @@ const listEntries = async (req, res, next) => {
     const [entries, total] = await Promise.all([
       DataEntry.find(filter)
         .populate('userId', 'fullName username')
-        .sort({ createdAt: -1 })
+        .sort({
+      status: -1,
+      submittedAt: -1,
+      slotNumber: 1,
+    })
         .skip(skip)
         .limit(limit)
         .lean(),

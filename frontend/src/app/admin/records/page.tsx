@@ -156,7 +156,7 @@ export default function AdminRecordsPage() {
     },
   });
 
-  const entries = data?.entries || [];
+  const entries = (data?.entries || []).filter((entry) => entry.status !== "blank");
   const totalPages = data?.pages || 1;
 
   const deleteMutation = useMutation({
@@ -193,7 +193,7 @@ export default function AdminRecordsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">All Records</h1>
+          <h1 className="text-2xl font-bold text-slate-800">Matrimonial Records</h1>
           <p className="text-slate-500 text-sm">{data?.total?.toLocaleString() || '0'} total entries</p>
         </div>
         <Button
@@ -233,7 +233,7 @@ export default function AdminRecordsPage() {
           ) : entries.length === 0 ? (
             <div className="text-center py-16">
               <FileText className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-              <p className="text-slate-400 font-medium">No entries found</p>
+              <p className="text-slate-400 font-medium">No submitted or draft entries found.</p>
             </div>
           ) : (
             <div className="rounded-xl overflow-hidden">
@@ -264,11 +264,20 @@ export default function AdminRecordsPage() {
                         {entry.submittedAt ? formatDateTime(entry.submittedAt) : '—'}
                       </TableCell>
                       <TableCell>
-                        <Badge className={`text-xs border-0 ${entry.status === 'submitted'
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-amber-100 text-amber-700'
-                          }`}>
-                          {entry.status === 'submitted' ? 'Submitted' : 'Draft'}
+                        <Badge
+                          className={`text-xs border-0 ${
+                            entry.status === 'submitted'
+                              ? 'bg-emerald-100 text-emerald-700'
+                              : entry.status === 'draft'
+                              ? 'bg-amber-100 text-amber-700'
+                              : 'bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {entry.status === 'submitted'
+                            ? 'Submitted'
+                            : entry.status === 'draft'
+                            ? 'Draft'
+                            : 'Blank'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -338,9 +347,10 @@ export default function AdminRecordsPage() {
       <Dialog open={!!deleteEntry} onOpenChange={() => setDeleteEntry(null)}>
         <DialogContent className="sm:max-w-[400px] rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="text-rose-600">Delete Entry</DialogTitle>
+            <DialogTitle className="text-rose-600">Reset Entry</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the entry for <strong>{deleteEntry?.fullName}</strong>? This cannot be undone.
+               Are you sure you want to reset the entry for <strong>{deleteEntry?.fullName}</strong>?
+               This will clear all entered data and restore this slot back to a blank entry.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -354,7 +364,7 @@ export default function AdminRecordsPage() {
               className="rounded-xl"
             >
               {deleteMutation.isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-              Delete
+              Reset
             </Button>
           </DialogFooter>
         </DialogContent>

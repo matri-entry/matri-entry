@@ -165,13 +165,11 @@ const dataEntrySchema = new mongoose.Schema(
 dataEntrySchema.index({ userId: 1, slotNumber: 1 }, { unique: true });
 
 /**
- * Partial compound index: profileId must be unique per user, but ONLY
- * if profileId is explicitly provided as a string. 
- * This prevents Duplicate Key errors on blank slots.
+ * Primary compound index: ensures slot numbers are unique per user.
  */
 dataEntrySchema.index(
-  { userId: 1, profileId: 1 },
-  { unique: true, partialFilterExpression: { profileId: { $type: 'string' } } }
+  { userId: 1, slotNumber: 1 },
+  { unique: true }
 );
 
 module.exports = mongoose.model('DataEntry', dataEntrySchema);

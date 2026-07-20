@@ -186,20 +186,17 @@ const updateEntry = async (req, res, next) => {
       status,
     } = req.body;
 
-    // ── profileId uniqueness check per user ──────────────────────────────────
-    if (profileId && profileId !== entry.profileId) {
-      const duplicate = await DataEntry.findOne({
-        userId,
-        profileId,
-        _id: { $ne: entry._id },
-      });
-      if (duplicate) {
-        return res.status(409).json({
-          success: false,
-          message: `Profile ID "${profileId}" is already used in another slot.`,
-        });
-      }
-    }
+    // Business Rule:
+// Profile ID is NOT unique.
+//
+// Multiple operators may enter the same Profile ID.
+//
+// The same operator may also enter the same Profile ID in different slots.
+//
+// Therefore no duplicate validation is performed.
+// Slot ownership is enforced only by:
+//
+// userId + slotNumber
 
     // ── Apply updates ────────────────────────────────────────────────────────
     const allowedFields = {

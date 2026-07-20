@@ -13,11 +13,17 @@ interface MonitoringUser {
   id: string;
   name: string;
   username: string;
+
   assignedCount: number;
   completedCount: number;
+  pendingCount: number;
+  progressPercentage: number;
+
   expiryAt?: string;
+
   isActive: boolean;
   isExpired: boolean;
+
   lastActivity?: string;
 }
 
@@ -39,6 +45,12 @@ export default function AdminMonitoringPage() {
         username: u.username,
         assignedCount: u.assignedCount,
         completedCount: u.completedCount,
+        pendingCount: u.pendingCount,
+        progressPercentage:
+          u.assignedCount === 0
+            ? 0
+            : Math.round((u.completedCount / u.assignedCount) * 100),
+            
         expiryAt: u.expiryAt,
         isActive: u.isActive,
         isExpired: u.expiryAt ? new Date(u.expiryAt) < new Date() : false,

@@ -70,6 +70,7 @@ export default function AdminUsersPage() {
       adminApi.resetPassword(id, password),
     onSuccess: () => {
       toast.success('Password reset successfully');
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
       setResetPasswordUser(null);
       setNewPassword('');
     },

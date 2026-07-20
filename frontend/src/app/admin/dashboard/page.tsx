@@ -14,7 +14,7 @@ interface DashboardStats {
   activeUsers: number;
   expiredUsers: number;
   totalEntries: number;
-  todayEntries?: number;
+  submittedEntries: number;
   recentActivity?: Array<{
     id: string;
     userName: string;
@@ -78,11 +78,11 @@ export default function AdminDashboard() {
               subtitle="Accounts past expiry"
             />
             <StatCard
-              title="Total Entries"
+              title="Total Slots"
               value={data?.totalEntries ?? 0}
               icon={<FileText className="w-6 h-6" />}
               color="amber"
-              subtitle="All submitted records"
+              subtitle="Total assigned data entry slots"
             />
           </>
         )}
