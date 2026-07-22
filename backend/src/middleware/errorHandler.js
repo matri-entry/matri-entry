@@ -32,12 +32,17 @@ const errorHandler = (err, req, res, next) => { // eslint-disable-line no-unused
 
   // ── Mongoose duplicate key error ──────────────────────────────────────────
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue || {})[0] || 'field';
-    return res.status(409).json({
-      success: false,
-      message: `Duplicate value for ${field}. Please use a unique value.`,
-    });
-  }
+  console.error("Duplicate Key Pattern:", err.keyPattern);
+  console.error("Duplicate Key Value:", err.keyValue);
+  console.error("Duplicate Index:", err.message);
+
+  const field = Object.keys(err.keyValue || {})[0] || 'field';
+
+  return res.status(409).json({
+    success: false,
+    message: `Duplicate value for ${field}. Please use a unique value.`,
+  });
+}
 
   // ── JWT errors ────────────────────────────────────────────────────────────
   if (err.name === 'JsonWebTokenError') {
